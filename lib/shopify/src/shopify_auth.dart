@@ -51,6 +51,23 @@ class ShopifyAuth with ShopifyError {
     return accessTokenWithExpDate;
   }
 
+  Future<void> setAccessTokenManually(String accessToken,
+      {DateTime? expiresAt}) async {
+    // Create AccessTokenWithExpDate object
+    final AccessTokenWithExpDate tokenWithExpDate = AccessTokenWithExpDate(
+      accessToken: accessToken,
+      expiresAt: expiresAt ??
+          DateTime.now()
+              .add(const Duration(days: 30)), // Default 30 days expiry
+    );
+
+    // Fetch the user details using the token
+    final shopifyUser = await _getShopifyUser(accessToken);
+
+    // Save the token and user
+    await _setShopifyUser(tokenWithExpDate, shopifyUser);
+  }
+
   /// Returns the current customer access token.
   ///
   /// If the current access token is not expired but about to expire, it will renew the token.
